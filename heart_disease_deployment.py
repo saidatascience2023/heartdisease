@@ -11,40 +11,32 @@ Original file is located at
 #!pip install joblib
 
 import streamlit as st
-import numpy as np
+import pandas as pd
 import joblib
 
-# Load saved model
-model = joblib.load('heart_disease_model.pkl')
+# Load trained model
+model = joblib.load('heart_disease_pipeline.pkl')  # or logistic_regression_model.pkl
 
-# Title
-st.title('💓 Heart Disease Prediction App')
+# Define input features
+feature_names = ['age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg',
+                 'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal']
 
-# User Inputs
-st.header("Enter Patient Details")
+st.title("Heart Disease Prediction App")
 
-age = st.slider("Age", 20, 90, 50)
-sex = st.selectbox("Sex", [0, 1])  # 0: Female, 1: Male
-cp = st.selectbox("Chest Pain Type", [0, 1, 2, 3])
-trestbps = st.slider("Resting Blood Pressure", 80, 200, 120)
-chol = st.slider("Cholesterol (mg/dl)", 100, 400, 200)
-fbs = st.selectbox("Fasting Blood Sugar > 120 mg/dl", [0, 1])
-restecg = st.selectbox("Resting ECG Results", [0, 1, 2])
-thalach = st.slider("Max Heart Rate Achieved", 60, 220, 150)
-exang = st.selectbox("Exercise Induced Angina", [0, 1])
-oldpeak = st.slider("Oldpeak (ST depression)", 0.0, 6.0, 1.0, step=0.1)
-slope = st.selectbox("Slope of the peak exercise ST", [0, 1, 2])
-ca = st.selectbox("Number of major vessels (0–3)", [0, 1, 2, 3])
-thal = st.selectbox("Thalassemia", [0, 1, 2, 3])  # Depends on your mapping
+# User input
+input_data = {}
+for feature in feature_names:
+    input_data[feature] = st.number_input(f"Enter {feature}", step=1.0)
 
-# Predict
+# Convert to DataFrame
+input_df = pd.DataFrame([input_data])
+
+# Prediction
 if st.button("Predict"):
-    input_data = np.array([[age, sex, cp, trestbps, chol, fbs, restecg,
-                            thalach, exang, oldpeak, slope, ca, thal]])
-    prediction = model.predict(input_data)[0]
-    proba = model.predict_proba(input_data)[0][1]
-
+    prediction = model.predict(input_df)[0]
+    proba = model.predict_proba(input_df)[0][1]
+    
     if prediction == 1:
-        st.error(f"⚠️ High risk of heart disease. Probability: {proba:.2f}")
+        st.error(f"⚠️ High risk of heart disease ({proba:.2%} probability)")
     else:
-        st.success(f"✅ Low risk of heart disease. Probability: {proba:.2f}")
+        st.success(f"✅ Low risk of heart disease ({proba:.2%} probability)")
