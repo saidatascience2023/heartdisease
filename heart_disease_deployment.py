@@ -15,7 +15,7 @@ import numpy as np
 import joblib
 
 # Load saved model
-model = joblib.load('/content/heart_disease_model.pkl')
+model = joblib.load('heart_disease_model.pkl')
 
 # Title
 st.title('💓 Heart Disease Prediction App')
